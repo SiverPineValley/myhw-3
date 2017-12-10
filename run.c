@@ -28,19 +28,10 @@ p_meta find_meta(p_meta *last, size_t size) {
       previous = index;
       if( index->free == true ) {
        if( index == pbrk ) {
-	pbrk = sbrk(size);
-	index->free = false;
-	index->size = size;
-	index->next = pbrk;
-	index->prev = previous;
 	result = index;
         i = false;
        }
        else if( size <= index->size ) {
-        index->free = false;
-	index->size = size;
-	index->next = index + index->size + sizeof(struct metadata);
-	index->prev = previous;
         result = index;
         i = false;
        }
@@ -65,11 +56,35 @@ p_meta find_meta(p_meta *last, size_t size) {
     break;
 
   }
+  last = &previous;
   return result;
 }
 
 void *m_malloc(size_t size) {
-
+  p_meta last = base;
+  p_meta previous = base;
+  p_meta pbrk = sbrk(0);
+  struct rlimit limit;
+  p_meta hlimit = ( base + limit.rlim_max );
+  
+  last = find_meta(&previous,size);
+  if( last >= hlimit ) return NULL;
+  if( last == pbrk ) {
+   if( ( hlimit - pbrk ) < size ) return NULL;
+   else {
+    pbrk = sbrk(size);
+    last->free = false;
+    last->size = size;
+    last->next = pbrk;
+    last->prev = previous;
+   }
+  } else {
+   last->free = false;
+   last->size = size;
+   last->next = last + ( size + sizeof(struct metadata));
+   last->prev = previous;
+  }
+  return (last + sizeof(struct metadata));
 }
 
 void m_free(void *ptr) {

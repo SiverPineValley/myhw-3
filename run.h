@@ -4,7 +4,7 @@
 #include <sys/types.h>
 
 //Medata data block size
-#define META_SIZE (sizeof(struct metadata) - 4)
+#define META_SIZE (sizeof(struct metadata))
 
 typedef struct metadata *p_meta;
 
@@ -17,7 +17,7 @@ struct metadata
   int free;
 
   // A pointer tto the data section
-  char data[1];
+  //char data[1];
 };
 
 extern void *base;

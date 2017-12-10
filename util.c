@@ -13,7 +13,7 @@ print_block_list(/* arguments */) {
    {
       printf("%d) size: %d | free %d\n", i, cur->size, cur->free);
       if(print_flag && !cur->free)
-        printf("%s\n", cur->data);
+        printf("%s\n", (cur + sizeof(struct metadata)));
       cur = cur->next;
       i++;
    }
